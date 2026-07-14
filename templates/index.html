@@ -1,1 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>KURAMA ENGINE v5.0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #141414;
+            --bg-input: #0d0d0d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888888;
+            --text-muted: #555555;
+            --accent: #ff3333;
+            --accent-hover: #ff5555;
+            --accent-subtle: rgba(255, 51, 51, 0.08);
+            --accent-glow: rgba(255, 51, 51, 0.2);
+            --success: #00ff41;
+            --success-subtle: rgba(0, 255, 65, 0.1);
+            --danger: #ff3333;
+            --danger-subtle: rgba(255, 51, 51, 0.1);
+            --warning: #ffaa00;
+            --warning-subtle: rgba(255, 170, 0, 0.1);
+            --border: #2a2a2a;
+            --border-subtle: #1f1f1f;
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(ellipse at 50% 0%, rgba(255,51,51,0.04) 0%, transparent 70%),
+                radial-gradient(ellipse at 80% 100%, rgba(255,51,51,0.02) 0%, transparent 50%);
+        }
+
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 14px;
+            padding-bottom: calc(100px + var(--safe-bottom));
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            position: sticky;
+            top: 12px;
+            z-index: 50;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex-shrink: 0;
+        }
+        .brand .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            box-shadow: 0 0 15px var(--accent-glow);
+            flex-shrink: 0;
+        }
+        .brand h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }
+        .brand .version {
+            font-size: 9px;
+            background: var(--danger-subtle);
+            color: var(--accent);
+            padding: 3px 10px;
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .status-indicator.idle { color: var(--text-secondary); border-color: var(--border); }
+        .status-indicator.running { color: var(--accent); border-color: var(--accent); }
+        .status-indicator.paused { color: var(--warning); border-color: var(--warning); }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            flex-shrink: 0;
+        }
+        .running .status-dot { animation: dotPulse 0.8s infinite; }
+        @keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            gap: 2px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab-btn {
+            flex: 1 0 auto;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 150ms;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+        }
+        .tab-btn.active { color: var(--accent); background: rgba(255,51,51,0.05); }
+        .tab-btn:hover:not(.active) { color: var(--text-primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            overflow: hidden;
+            min-width: 0;
+        }
+        .stat-card .stat-value {
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stat-card .stat-label {
+            font-size: 9px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+        .stat-card .stat-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .color-accent { color: var(--accent); }
+        .color-success { color: var(--success); }
+
+        /* Chart */
+        .chart-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+        }
+        canvas { width: 100%; height: 160px; border-radius: var(--radius-sm); }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-bottom: 12px;
+        }
+        .panel-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Elements */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 12px;
+            font-family: var(--font-mono);
+            outline: none;
+            transition: 150ms;
+            width: 100%;
+            min-width: 0;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus { border-color: var(--accent); }
+        .form-group textarea { resize: vertical; min-height: 60px; line-height: 1.6; font-size: 11px; }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23888' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+        }
+
+        /* Toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .toggle {
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: 150ms;
+            flex-shrink: 0;
+        }
+        .toggle.active { background: var(--accent); }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 150ms;
+        }
+        .toggle.active::after { left: 22px; }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 150ms;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            min-width: 0;
+        }
+        .btn-attack {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .btn-attack:hover { background: #ff4444; }
+        .btn-stop { background: transparent; color: var(--danger); border-color: var(--danger); }
+        .btn-stop:hover { background: var(--danger-subtle); }
+        .btn-secondary { background: transparent; color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--bg-tertiary); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .btn-sm { padding: 8px 14px; font-size: 10px; }
+        .btn-block { width: 100%; }
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* Live Feed */
+        .feed-container {
+            max-height: 350px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .feed-list { font-size: 11px; line-height: 1.6; }
+        .feed-item {
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            font-family: var(--font-mono);
+            word-break: break-all;
+            overflow-wrap: break-word;
+        }
+        .feed-item:last-child { border-bottom: none; }
+        .feed-item .f-status { font-weight: 700; }
+        .feed-item .f-status.s2xx { color: var(--success); }
+        .feed-item .f-status.s3xx { color: #3399ff; }
+        .feed-item .f-status.s4xx { color: var(--warning); }
+        .feed-item .f-status.s5xx { color: var(--accent); }
+        .feed-item .f-status.serr { color: var(--accent); }
+        .feed-item .f-status.sinfo { color: var(--accent); }
+        .feed-item .f-meta { color: var(--text-secondary); font-size: 10px; }
+        .feed-item .f-body {
+            color: var(--text-muted);
+            font-size: 10px;
+            margin-top: 2px;
+            max-height: 50px;
+            overflow: hidden;
+            word-break: break-all;
+        }
+
+        /* Badges */
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .badge {
+            padding: 3px 10px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+        .badge-2xx { background: var(--success-subtle); color: var(--success); border: 1px solid var(--success); }
+        .badge-3xx { background: rgba(51,153,255,0.1); color: #3399ff; border: 1px solid #3399ff; }
+        .badge-4xx { background: var(--warning-subtle); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-5xx { background: var(--danger-subtle); color: var(--accent); border: 1px solid var(--accent); }
+        .badge-err { background: var(--danger-subtle); color: var(--accent); border: 1px solid var(--accent); }
+
+        /* Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 14px;
+            padding-bottom: calc(10px + var(--safe-bottom));
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            z-index: 90;
+            display: flex;
+            gap: 8px;
+            min-height: 70px;
+            align-items: center;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            pointer-events: none;
+            max-width: calc(100vw - 28px);
+        }
+        .toast {
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: toastIn 0.2s ease, toastOut 0.2s ease 2.5s forwards;
+            pointer-events: auto;
+            font-family: var(--font-mono);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .toast-success { background: var(--success); color: #000; }
+        .toast-error { background: var(--accent); }
+        .toast-forbidden { background: #ff6600; }
+        .toast-warning { background: var(--warning); color: #000; }
+        .toast-info { background: #3399ff; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(80px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(80px); } }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        @media (max-width: 600px) {
+            .app-container { padding: 8px; padding-bottom: calc(90px + var(--safe-bottom)); }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .stat-card { padding: 14px; }
+            .stat-card .stat-value { font-size: 22px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .tab-btn { font-size: 10px; padding: 10px 12px; letter-spacing: 1px; }
+            .bottom-bar { padding: 8px 10px; padding-bottom: calc(8px + var(--safe-bottom)); gap: 6px; min-height: 62px; }
+            .btn { padding: 10px 12px; font-size: 10px; letter-spacing: 1px; }
+            .btn-sm { padding: 8px 10px; font-size: 9px; }
+            .feed-container { max-height: 280px; }
+        }
+        @media (min-width: 601px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-container">
+
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="brand">
+                <div class="logo"><i class="fas fa-skull"></i></div>
+                <h1>KURAMA</h1>
+                <span class="version">v5.0</span>
+            </div>
+            <div class="status-indicator idle" id="statusIndicator">
+                <span class="status-dot"></span>
+                <span id="statusText">IDLE</span>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav" id="tabNav">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="config">Config</button>
+            <button class="tab-btn" data-tab="advanced">Advanced</button>
+            <button class="tab-btn" data-tab="results">Export</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content active" id="tab-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value color-accent" id="totalRequests">0</div>
+                    <div class="stat-label">Total Requests</div>
+                    <div class="stat-sub" id="elapsedTime">00:00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value color-accent" id="rps">0</div>
+                    <div class="stat-label">Requests/sec</div>
+                    <div class="stat-sub">Avg: <span id="avgResponse">0</span>ms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value color-success" id="successCount">0</div>
+                    <div class="stat-label">Success</div>
+                    <div class="stat-sub" id="successRate">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color:#ff3333;" id="failCount">0</div>
+                    <div class="stat-label">Failed</div>
+                    <div class="stat-sub" id="failRate">0%</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <span>Request Rate</span>
+                </div>
+                <canvas id="rpsChart"></canvas>
+            </div>
+
+            <!-- Live Feed -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-terminal color-accent"></i> Live Feed
+                </div>
+                <div class="badges" id="statusBadges"></div>
+                <div class="feed-container">
+                    <div class="feed-list" id="liveFeed">
+                        <div class="empty-state">Awaiting connection...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Config Tab -->
+        <div class="tab-content" id="tab-config">
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-crosshairs color-accent"></i> Target Configuration
+                </div>
+                <div class="form-group full" style="margin-bottom:12px;">
+                    <label>Target URL *</label>
+                    <input type="url" id="targetUrl" placeholder="https://target.com/api/endpoint">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Method</label>
+                        <select id="method">
+                            <option value="POST">POST</option>
+                            <option value="GET">GET</option>
+                            <option value="PUT">PUT</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Threads</label>
+                        <input type="number" id="threads" value="8" min="1" max="128">
+                    </div>
+                    <div class="form-group">
+                        <label>Concurrency</label>
+                        <input type="number" id="concurrency" value="1500" min="10" max="20000">
+                    </div>
+                    <div class="form-group">
+                        <label>Timeout (sec)</label>
+                        <input type="number" id="timeout" value="2.0" min="0.1" max="30" step="0.1">
+                    </div>
+                </div>
+                <div class="form-group full" style="margin-top:12px;">
+                    <label>Payloads (one per line)</label>
+                    <textarea id="payloads" rows="4" placeholder='{"user":"admin","pass":"root"}'></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Tab -->
+        <div class="tab-content" id="tab-advanced">
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-cog color-warning"></i> Advanced Settings
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Request Delay (ms)</label>
+                        <input type="number" id="requestDelay" value="0" min="0" max="10000">
+                    </div>
+                    <div class="form-group">
+                        <label>Duration Limit (sec, 0=∞)</label>
+                        <input type="number" id="durationLimit" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Request Limit (0=∞)</label>
+                        <input type="number" id="requestLimit" value="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Headers (JSON)</label>
+                        <input type="text" id="customHeaders" value='{}' placeholder='{"Authorization":"Bearer ..."}'>
+                    </div>
+                </div>
+                <div class="form-group full" style="margin-top:12px;">
+                    <label>Proxy List (one per line)</label>
+                    <textarea id="proxies" rows="3" placeholder="http://proxy1:8080&#10;http://proxy2:3128"></textarea>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Verify SSL</span>
+                    <div class="toggle" id="toggleSSL" onclick="toggleSwitch('toggleSSL','verifySSL')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Follow Redirects</span>
+                    <div class="toggle" id="toggleRedirect" onclick="toggleSwitch('toggleRedirect','followRedirects')"></div>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label">Keep-Alive</span>
+                    <div class="toggle" id="toggleKeepAlive" onclick="toggleSwitch('toggleKeepAlive','keepAlive')"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Tab -->
+        <div class="tab-content" id="tab-results">
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-file-export color-success"></i> Export Results
+                </div>
+                <div class="btn-group" style="margin-bottom:12px;">
+                    <button class="btn btn-secondary btn-sm" onclick="exportResults('json')">
+                        <i class="fas fa-code"></i> JSON
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="exportResults('csv')">
+                        <i class="fas fa-table"></i> CSV
+                    </button>
+                </div>
+                <div id="exportPreview" style="font-size:10px; max-height:400px; overflow-y:auto;">
+                    <div class="empty-state">Run attack to generate data</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar">
+        <button class="btn btn-attack btn-block" id="startBtn" style="flex:2;">
+            <i class="fas fa-bolt"></i> Launch Attack
+        </button>
+        <button class="btn btn-secondary btn-sm" id="pauseBtn" disabled style="flex:1;">
+            <i class="fas fa-pause"></i> Pause
+        </button>
+        <button class="btn btn-stop btn-sm" id="stopBtn" disabled style="flex:1;">
+            <i class="fas fa-stop"></i> Stop
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+        const socket = io({ reconnection: true, reconnectionAttempts: Infinity, reconnectionDelay: 500 });
+
+        const AppState = {
+            isRunning: false, isPaused: false,
+            toggleStates: { verifySSL: false, followRedirects: false, keepAlive: false },
+            chartData: [], maxChartPoints: 60,
+        };
+
+        function showToast(message, type = 'info') {
+            const icons = { success: 'fa-check-circle', error: 'fa-exclamation-triangle', forbidden: 'fa-ban', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 2800);
+        }
+
+        // Tab Navigation
+        document.getElementById('tabNav').addEventListener('click', (e) => {
+            const btn = e.target.closest('.tab-btn');
+            if (!btn) return;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            if (btn.dataset.tab === 'dashboard') drawChart();
+        });
+
+        function toggleSwitch(toggleId, stateKey) {
+            const toggle = document.getElementById(toggleId);
+            AppState.toggleStates[stateKey] = !AppState.toggleStates[stateKey];
+            toggle.classList.toggle('active', AppState.toggleStates[stateKey]);
+            saveConfig();
+        }
+
+        function setUIState(running, paused = false) {
+            AppState.isRunning = running;
+            AppState.isPaused = paused;
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const stopBtn = document.getElementById('stopBtn');
+
+            if (running && paused) {
+                indicator.className = 'status-indicator paused';
+                statusText.textContent = 'PAUSED';
+                pauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+                pauseBtn.className = 'btn btn-attack btn-sm';
+                pauseBtn.disabled = false; stopBtn.disabled = false;
+                document.title = '[PAUSED] KURAMA ENGINE';
+            } else if (running) {
+                indicator.className = 'status-indicator running';
+                statusText.textContent = 'ATTACKING';
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                pauseBtn.className = 'btn btn-secondary btn-sm';
+                pauseBtn.disabled = false; stopBtn.disabled = false;
+                document.title = '[LIVE] KURAMA ENGINE';
+            } else {
+                indicator.className = 'status-indicator idle';
+                statusText.textContent = 'IDLE';
+                startBtn.disabled = false;
+                startBtn.innerHTML = '<i class="fas fa-bolt"></i> Launch Attack';
+                pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+                pauseBtn.className = 'btn btn-secondary btn-sm';
+                pauseBtn.disabled = true; stopBtn.disabled = true;
+                document.title = 'KURAMA ENGINE v5.0';
+            }
+        }
+
+        function clearDashboard() {
+            document.getElementById('totalRequests').textContent = '0';
+            document.getElementById('rps').textContent = '0';
+            document.getElementById('successCount').textContent = '0';
+            document.getElementById('failCount').textContent = '0';
+            document.getElementById('avgResponse').textContent = '0';
+            document.getElementById('successRate').textContent = '0%';
+            document.getElementById('failRate').textContent = '0%';
+            document.getElementById('elapsedTime').textContent = '00:00';
+            document.getElementById('statusBadges').innerHTML = '';
+            document.getElementById('liveFeed').innerHTML = '<div class="empty-state">Awaiting connection...</div>';
+            AppState.chartData = [];
+            drawChart();
+        }
+
+        function updateDashboard(metrics, liveResponses) {
+            const m = metrics || {};
+            document.getElementById('totalRequests').textContent = formatNumber(m.total || 0);
+            document.getElementById('rps').textContent = formatNumber(m.rps || 0);
+            document.getElementById('successCount').textContent = formatNumber(m.success || 0);
+            document.getElementById('failCount').textContent = formatNumber(m.fail || 0);
+            document.getElementById('avgResponse').textContent = m.avg_response_time || 0;
+            const total = m.total || 0;
+            document.getElementById('successRate').textContent = (total > 0 ? ((m.success||0)/total*100).toFixed(1) : 0) + '%';
+            document.getElementById('failRate').textContent = (total > 0 ? ((m.fail||0)/total*100).toFixed(1) : 0) + '%';
+            document.getElementById('elapsedTime').textContent = formatTime(m.elapsed || 0);
+            updateBadges(m.by_status || {}, m.by_error || {});
+            if (liveResponses) updateLiveFeed(liveResponses);
+            if (m.timeline && m.timeline.length > 0) { AppState.chartData = m.timeline; drawChart(); }
+        }
+
+        socket.on('stats_update', (data) => {
+            if (data.is_running) {
+                updateDashboard(data, data.live_responses);
+                if (!AppState.isRunning) setUIState(true, data.is_paused||false);
+            }
+        });
+
+        socket.on('engine_event', (data) => {
+            if (data.type === 'started') { setUIState(true, false); showToast('ATTACK LAUNCHED', 'success'); }
+            else if (data.type === 'stopped') { setUIState(false, false); clearDashboard(); showToast(data.message, 'warning'); }
+            else if (data.type === 'paused') { setUIState(true, true); showToast('ATTACK PAUSED', 'warning'); }
+            else if (data.type === 'resumed') { setUIState(true, false); showToast('ATTACK RESUMED', 'info'); }
+        });
+
+       
+
+        socket.on('full_state_sync', (state) => {
+            if (state.is_running) {
+                setUIState(true, state.is_paused || false);
+                if (state.metrics) updateDashboard(state.metrics, state.live_responses);
+            } else {
+                setUIState(false, false);
+            }
+        });
+
+        function updateBadges(byStatus, byError) {
+            const container = document.getElementById('statusBadges');
+            let html = '';
+            for (const [code, count] of Object.entries(byStatus)) {
+                const codeNum = parseInt(code);
+                let cls = 'badge-err';
+                if (codeNum >= 200 && codeNum < 300) cls = 'badge-2xx';
+                else if (codeNum >= 300 && codeNum < 400) cls = 'badge-3xx';
+                else if (codeNum >= 400 && codeNum < 500) cls = 'badge-4xx';
+                else if (codeNum >= 500) cls = 'badge-5xx';
+                html += `<span class="badge ${cls}">${code}: ${count}</span>`;
+            }
+            for (const [error, count] of Object.entries(byError)) {
+                html += `<span class="badge badge-err">${error}: ${count}</span>`;
+            }
+            container.innerHTML = html || '<span style="font-size:9px;color:var(--text-muted);">No responses</span>';
+        }
+
+        function updateLiveFeed(responses) {
+            const container = document.getElementById('liveFeed');
+            if (!responses || responses.length === 0) {
+                container.innerHTML = '<div class="empty-state">No responses yet</div>';
+                return;
+            }
+            container.innerHTML = responses.map(r => {
+                if (r.is_info) {
+                    return `<div class="feed-item"><span class="f-status sinfo">[INFO]</span> <span class="f-meta">${formatTimestamp(r.timestamp)}</span> <span>${escapeHtml(r.error||'')}</span></div>`;
+                }
+                if (r.is_error) {
+                    return `<div class="feed-item"><span class="f-status serr">[ERROR]</span> <span class="f-meta">${formatTimestamp(r.timestamp)}</span> <span>${escapeHtml(r.error||'Unknown')}</span></div>`;
+                }
+                const status = r.status || 0;
+                let cls = 'serr';
+                if (status >= 200 && status < 300) cls = 's2xx';
+                else if (status >= 300 && status < 400) cls = 's3xx';
+                else if (status >= 400 && status < 500) cls = 's4xx';
+                else if (status >= 500) cls = 's5xx';
+                
+                let line = `<div class="feed-item">`;
+                line += `<span class="f-status ${cls}">[${status}]</span> `;
+                line += `<span class="f-meta">${formatTimestamp(r.timestamp)} | ${r.time_ms||0}ms | ${formatBytes(r.size||0)}</span> `;
+                if (r.server) line += `<span class="f-meta">| ${r.server}</span>`;
+                if (r.body_preview) line += `<div class="f-body">${escapeHtml(r.body_preview)}</div>`;
+                line += `</div>`;
+                return line;
+            }).join('');
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('rpsChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = 160 * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = '160px';
+            ctx.scale(dpr, dpr);
+            const w = rect.width, h = 160;
+            const pad = { top: 10, right: 10, bottom: 20, left: 50 };
+            const pw = w - pad.left - pad.right, ph = h - pad.top - pad.bottom;
+            ctx.clearRect(0, 0, w, h);
+            ctx.fillStyle = '#0d0d0d';
+            ctx.beginPath(); ctx.roundRect(pad.left, pad.top, pw, ph, 6); ctx.fill();
+            
+            if (AppState.chartData.length === 0) {
+                ctx.fillStyle = '#555'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+                ctx.fillText('No data', pad.left + pw/2, pad.top + ph/2);
+                return;
+            }
+            
+            const maxVal = Math.max(...AppState.chartData.map(d => d.count), 5);
+            ctx.strokeStyle = '#1f1f1f'; ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 4; i++) {
+                const y = pad.top + (ph / 4) * i;
+                ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + pw, y); ctx.stroke();
+                ctx.fillStyle = '#555'; ctx.font = '9px monospace'; ctx.textAlign = 'right';
+                ctx.fillText(Math.round(maxVal - (maxVal/4)*i), pad.left-6, y+3);
+            }
+            
+            if (AppState.chartData.length > 1) {
+                const stepX = pw / (AppState.maxChartPoints - 1);
+                ctx.beginPath(); ctx.strokeStyle = '#ff3333'; ctx.lineWidth = 2;
+                AppState.chartData.forEach((p, i) => {
+                    const x = pad.left + i*stepX, y = pad.top + ph - (p.count/maxVal)*ph;
+                    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+                });
+                ctx.stroke();
+                ctx.lineTo(pad.left+(AppState.chartData.length-1)*stepX, pad.top+ph);
+                ctx.lineTo(pad.left, pad.top+ph); ctx.closePath();
+                const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top+ph);
+                grad.addColorStop(0, 'rgba(255,51,51,0.2)'); grad.addColorStop(1, 'rgba(255,51,51,0)');
+                ctx.fillStyle = grad; ctx.fill();
+            }
+        }
+        window.addEventListener('resize', drawChart);
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num/1000000).toFixed(1)+'M';
+            if (num >= 1000) return (num/1000).toFixed(1)+'K';
+            return num.toString();
+        }
+        function formatTime(seconds) {
+            const m = Math.floor(seconds/60), s = Math.floor(seconds%60);
+            return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+        function formatTimestamp(ts) {
+            if (!ts) return '';
+            const d = new Date(ts*1000);
+            return d.toLocaleTimeString('en-US', {hour12:false, hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        }
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return '0B';
+            if (bytes < 1024) return bytes+'B';
+            if (bytes < 1048576) return (bytes/1024).toFixed(1)+'KB';
+            return (bytes/1048576).toFixed(1)+'MB';
+        }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        // Buttons
+        document.getElementById('startBtn').addEventListener('click', async () => {
+            const targetUrl = document.getElementById('targetUrl').value.trim();
+            if (!targetUrl) { showToast('Target URL required', 'error'); return; }
+            const config = {
+                target_url: targetUrl,
+                method: document.getElementById('method').value,
+                threads: parseInt(document.getElementById('threads').value)||8,
+                concurrency: parseInt(document.getElementById('concurrency').value)||1500,
+                timeout: parseFloat(document.getElementById('timeout').value)||2.0,
+                request_delay: parseFloat(document.getElementById('requestDelay').value)||0,
+                duration_limit: parseInt(document.getElementById('durationLimit').value)||0,
+                request_limit: parseInt(document.getElementById('requestLimit').value)||0,
+                payloads: document.getElementById('payloads').value,
+                custom_headers: document.getElementById('customHeaders').value||'{}',
+                proxies: document.getElementById('proxies').value,
+                verify_ssl: AppState.toggleStates.verifySSL,
+                follow_redirects: AppState.toggleStates.followRedirects,
+                keep_alive: AppState.toggleStates.keepAlive,
+            };
+            try {
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('startBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing...';
+                const res = await fetch('/api/start', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(config)});
+                const data = await res.json();
+                if (res.status === 403) {
+                    showToast(data.message || 'FORBIDDEN', 'forbidden');
+                    setUIState(false, false);
+                } else if (!res.ok) {
+                    showToast(data.message||'Failed', 'error');
+                    setUIState(false, false);
+                }
+            } catch(err) { showToast('Error: '+err.message, 'error'); setUIState(false, false); }
+        });
+        document.getElementById('stopBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('stopBtn').disabled = true;
+                const res = await fetch('/api/stop', {method:'POST'});
+                const data = await res.json();
+                clearDashboard();
+                setUIState(false, false);
+            } catch(err) { showToast('Failed to stop', 'error'); }
+        });
+        document.getElementById('pauseBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('pauseBtn').disabled = true;
+                await fetch('/api/pause', {method:'POST'});
+            } catch(err) { showToast('Failed', 'error'); }
+        });
+
+        async function exportResults(format) {
+            try { window.open(`/api/export?format=${format}`,'_blank'); showToast(`Exporting ${format.toUpperCase()}...`,'info'); }
+            catch(err) { showToast('Export failed','error'); }
+        }
+
+        function saveConfig() {
+            const config = {
+                targetUrl: document.getElementById('targetUrl').value,
+                method: document.getElementById('method').value,
+                threads: document.getElementById('threads').value,
+                concurrency: document.getElementById('concurrency').value,
+                timeout: document.getElementById('timeout').value,
+                payloads: document.getElementById('payloads').value,
+                customHeaders: document.getElementById('customHeaders').value,
+                proxies: document.getElementById('proxies').value,
+                requestDelay: document.getElementById('requestDelay').value,
+                durationLimit: document.getElementById('durationLimit').value,
+                requestLimit: document.getElementById('requestLimit').value,
+                toggleStates: AppState.toggleStates,
+            };
+            localStorage.setItem('Kurama_config', JSON.stringify(config));
+        }
+        function loadConfig() {
+            const saved = localStorage.getItem('Kurama_config');
+            if (!saved) return;
+            try {
+                const c = JSON.parse(saved);
+                if (c.targetUrl) document.getElementById('targetUrl').value = c.targetUrl;
+                if (c.method) document.getElementById('method').value = c.method;
+                if (c.threads) document.getElementById('threads').value = c.threads;
+                if (c.concurrency) document.getElementById('concurrency').value = c.concurrency;
+                if (c.timeout) document.getElementById('timeout').value = c.timeout;
+                if (c.payloads) document.getElementById('payloads').value = c.payloads;
+                if (c.customHeaders) document.getElementById('customHeaders').value = c.customHeaders;
+                if (c.proxies) document.getElementById('proxies').value = c.proxies;
+                if (c.requestDelay) document.getElementById('requestDelay').value = c.requestDelay;
+                if (c.durationLimit) document.getElementById('durationLimit').value = c.durationLimit;
+                if (c.requestLimit) document.getElementById('requestLimit').value = c.requestLimit;
+                if (c.toggleStates) {
+                    AppState.toggleStates = c.toggleStates;
+                    document.getElementById('toggleSSL').classList.toggle('active', c.toggleStates.verifySSL);
+                    document.getElementById('toggleRedirect').classList.toggle('active', c.toggleStates.followRedirects);
+                    document.getElementById('toggleKeepAlive').classList.toggle('active', c.toggleStates.keepAlive);
+                }
+            } catch(e) {}
+        }
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('change', saveConfig);
+            el.addEventListener('input', debounce(saveConfig, 500));
+        });
+        function debounce(fn, delay) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); }; }
+
+        async function init() {
+            loadConfig();
+            try {
+                const response = await fetch('/api/status');
+                const state = await response.json();
+                if (state.config) {
+                    const cfg = state.config;
+                    document.getElementById('targetUrl').value = cfg.target_url || '';
+                    document.getElementById('method').value = cfg.method || 'POST';
+                    document.getElementById('threads').value = cfg.thread_count || 8;
+                    document.getElementById('concurrency').value = cfg.concurrency || 1500;
+                    document.getElementById('timeout').value = cfg.timeout || 2.0;
+                    document.getElementById('requestDelay').value = cfg.request_delay || 0;
+                    document.getElementById('durationLimit').value = cfg.duration_limit || 0;
+                    document.getElementById('requestLimit').value = cfg.request_limit || 0;
+                    document.getElementById('payloads').value = cfg.payloads || '';
+                    document.getElementById('customHeaders').value = cfg.custom_headers || '{}';
+                    document.getElementById('proxies').value = cfg.proxies || '';
+                    AppState.toggleStates.verifySSL = cfg.verify_ssl || false;
+                    AppState.toggleStates.followRedirects = cfg.follow_redirects || false;
+                    AppState.toggleStates.keepAlive = cfg.keep_alive || false;
+                    document.getElementById('toggleSSL').classList.toggle('active', AppState.toggleStates.verifySSL);
+                    document.getElementById('toggleRedirect').classList.toggle('active', AppState.toggleStates.followRedirects);
+                    document.getElementById('toggleKeepAlive').classList.toggle('active', AppState.toggleStates.keepAlive);
+                }
+                if (state.is_running) {
+                    setUIState(true, state.is_paused || false);
+                    if (state.metrics) updateDashboard(state.metrics, state.live_responses);
+                }
+            } catch(e) {}
+            drawChart();
+        }
+        init();
+    </script>
+</body>
+</html>
