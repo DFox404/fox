@@ -30,7 +30,9 @@
 - 🔒 **SSL Control** — Toggle verification on/off
 
 ## 🚀 Quick Start
-
+```bash
+pkg install git
+```
 ```bash
 git clone https://github.com/DFox404/fox.git
 ```
